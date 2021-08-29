@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import writer
+import config
 
 def scan():
-    camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    camera = cv2.VideoCapture(config.get_camera_index(), cv2.CAP_DSHOW)
     camera.set(cv2.CAP_PROP_FPS, 30.0)
     qrCodeDetector = cv2.QRCodeDetector()
 
@@ -34,5 +35,5 @@ def scan():
 
     camera.release()
     cv2.destroyAllWindows()
-    
+
     return list(codes.values())
