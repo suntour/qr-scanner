@@ -3,12 +3,19 @@ import numpy as np
 import writer
 import config
 
+
 def scan():
+
+    def drawLines(image, points, r, g, b):
+        pts = np.array(points, np.int32)
+        pts = pts.reshape(-1,1,2)
+        cv2.polylines(image, [pts], True, (r,g,b), 5)
+
     camera = cv2.VideoCapture(config.get_camera_index(), cv2.CAP_DSHOW)
     camera.set(cv2.CAP_PROP_FPS, 30.0)
     qrCodeDetector = cv2.QRCodeDetector()
 
-    codes = {}
+    codes = set()
 
     while 1:
         success, image = camera.read()
@@ -18,18 +25,14 @@ def scan():
             if points is not None:
                     point_len = len(points)
 
-            hashedCode = hash(decodedText)
-            if(not hashedCode in codes):
-                codes[hashedCode] = decodedText
+            if(not decodedText in codes):
+                codes.add(decodedText)
                 print('Adding ' + decodedText + ' to list')
 
-                pts = np.array(points, np.int32)
-                pts = pts.reshape(-1,1,2)
-                cv2.polylines(image, [pts], True, (255,0,255), 5)
+                drawLines(image, points, 255, 0, 255)
+
             else:
-                    pts = np.array(points, np.int32)
-                    pts = pts.reshape(-1,1,2)
-                    cv2.polylines(image, [pts], True, (0,255,0), 5)
+                    drawLines(image, points, 0, 255, 0)
 
         cv2.imshow("QR Scanner", image)
         k = cv2.waitKey(1)
@@ -39,4 +42,4 @@ def scan():
     camera.release()
     cv2.destroyAllWindows()
 
-    return list(codes.values())
+    return list(codes)
